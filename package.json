@@ -1,0 +1,19 @@
+{
+  "name":"map",
+  "version":"0.0.1",
+  "description":"Functional ORM Library for both NodeJS and Web Browsers",
+  "author":"Azer Koculu <azer@kodfabrik.com>",
+  "keywords":["orm", "functional", "fp", "mongo", "mongodb", "database"],
+  "directories":{ "lib": "./lib" },
+  "main":"./lib",
+  "repository": { "type":"git",  "url" : "http://github.com/azer/map.git" },
+  "dependencies": {
+    "debug": "git://github.com/azer/debug.git"
+  },
+  "devDependencies":{
+    "highkick": "1.x"
+  },
+  "scripts":{
+    "test": "./node_modules/.bin/highkick test/main.js"
+  }
+}
