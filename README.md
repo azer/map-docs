@@ -5,3 +5,5 @@ MapJS is a library for creating data-binding libraries that can interact with ea
 ```bash
 $ npm install map
 ```
+
+Status: In Development  
