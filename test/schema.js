@@ -101,12 +101,14 @@ function testOne(callback){
         return;
       }
 
+      assert.equal(copy.id(), entry.id());
       assert.equal(copy.title(), entry.title());
       assert.equal(copy.author(), entry.author());
       assert.equal(copy.price(), entry.price());
       assert.equal(copy.tax(), entry.tax());
       assert.equal(copy.createTS(), entry.createTS());
       assert.ok(copy.lastUpdateTS(), entry.lastUpdateTS());
+
       callback();
 
     });
@@ -161,7 +163,6 @@ function testInsert(callback){
 
 
 function testUpdate(callback){
-
   book.insert(whitefang, function(error, doc){
 
     if(error){
@@ -169,7 +170,7 @@ function testUpdate(callback){
       return;
     }
 
-    book.update(doc.id(), { 'title':'foo', 'author':'bar', 'price': 3, 'tax':10 }, function(error){
+    book.update(doc.id(), { id: doc.id(), 'title':'foo', 'author':'bar', 'price': 3, 'tax':10 }, function(error){
 
       if(error){
         callback(error);
@@ -183,23 +184,13 @@ function testUpdate(callback){
           return;
         }
 
+        assert.equal( copy.id(), doc.id());
         assert.equal( copy.title(), 'foo');
         assert.equal( copy.author(), 'bar');
         assert.equal( copy.price(), 3.3);
         assert.equal( copy.tax(), 10);
 
-        copy.update({ 'title': 'quux' }, function(error){
-
-          book.one(doc.id(), function(error, copy){
-
-            assert.equal( copy.title(), 'quux');
-            assert.equal( copy.author(), 'bar');
-            assert.equal( copy.price(), 3.3);
-            assert.equal( copy.tax(), 10);
-
-          });
-
-        });
+        callback();
 
       });
 
@@ -233,21 +224,7 @@ function testRemove(callback){
 
         assert.ok( !copy );
 
-        book.insert(whitefang, function(_, doc){
-
-          doc.remove(function(_){
-
-            book.one(doc.id(), function(_, copy){
-
-              assert.ok( !copy );
-              callback();
-
-            });
-
-          });
-
-        });
-
+        callback();
 
       });
 
@@ -285,15 +262,7 @@ function testSave(callback){
       assert.ok( copy.createTS() );
       assert.ok( copy.lastUpdateTS() );
 
-      doc.price('10.00$');
-      doc.tax(50);
-
-      doc.save(function(_, copy){
-
-        assert.equal( copy.price(), 15 );
-        callback();
-
-      });
+      callback();
 
     });
 
@@ -326,6 +295,15 @@ function testValidateData(callback){
 
 }
 
+function testIsDocument(callback){
+  var wf = book.create(whitefang);
+
+  assert.equal( map.isDocument(whitefang), false );
+  assert.equal( map.isDocument(wf), true );
+
+  callback();
+}
+
 module.exports = {
   'testCreate': testCreate,
   'testDefinition': testDefinition,
@@ -335,5 +313,6 @@ module.exports = {
   'testRemove': testRemove,
   'testSave': testSave,
   'testValidateData': testValidateData,
-  'testInsert': testInsert
+  'testInsert': testInsert,
+  'testIsDocument': testIsDocument
 };

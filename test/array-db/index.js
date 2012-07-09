@@ -1,6 +1,6 @@
 var map    = require('../../lib'),
     driver = require('./driver'),
-    types  = require('./types');
+    types  = map.types;
 
 module.exports = map.newDriver(driver);
 module.exports.types = types;

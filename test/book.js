@@ -5,6 +5,7 @@ var DEFAULT_BOOK_PRICE = 5,
     DEFAULT_BOOK_TAX   = 20;
 
 var book = arraydb('books', {
+  'id': types.id,
   'title': types.string,
   'author': types.string,
   'price': { 'type': price, 'get': getPrice, 'set': setPrice },

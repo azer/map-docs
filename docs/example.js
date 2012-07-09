@@ -78,6 +78,16 @@ book({ 'price':{ 'gte':5 } }, function(error, results){
 
 whitefang.sync({ 'price': 10 }); // this will update the object only
 
-whitefang.sync({ 'price': 8 }, function(error){ // this will call the update method of driver
+whitefang.sync(function(error){ // this will call the update method of driver
   //
 });
+
+/*
+ * Subscription
+ */
+function getWFUpdates(update){
+
+}
+
+whitefang.subscribe(getWFUpdates);
+whitefang.unsubscribe(getWFUpdates);
