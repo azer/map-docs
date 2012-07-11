@@ -3,12 +3,10 @@ var highkick = require('highkick'),
 
 var testSchema       = highkick('./schema'),
     testTypes        = highkick('./types'),
-    testDocument     = highkick('./document'),
-    testSubscription = highkick('./subscription');
+    testDocument     = highkick('./document');
 
 module.exports = {
   'testSchema': testSchema,
   'testTypes': testTypes,
-  'testDocument': testDocument,
-  'testSubscription': testSubscription
+  'testDocument': testDocument
 };

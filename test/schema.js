@@ -1,21 +1,15 @@
-var assert = require('assert'),
-    map    = require('../lib'),
-    arraydb = require('./array-db'),
-    types  = arraydb.types,
+var assert    = require('assert'),
 
-    book  = require('./book');
+    arraydb   = require('./array-db'),
+    types     = arraydb.types,
 
-var whitefang = { 'title': 'White Fang', 'author': 'Jack London' },
-    ontheroad = { 'title': 'On The Road', 'author': 'Jack Kerouac' },
-    howl      = { 'title': 'Howl', 'author': 'Allen Ginsberg', 'price':8 },
+    map       = require('../lib'),
 
-    books     = [ whitefang, ontheroad, howl ],
-
-    fruits    = [
-      { 'name': 'apple', 'price': 3 },
-      { 'name': 'banana', 'price': 1 },
-      { 'name': 'orange', 'price': 4 }
-    ];
+    content   = require('./content'),
+    book      = content.book,
+    books     = content.books,
+    fruits    = content.fruits,
+    whitefang = content.whitefang;
 
 function testDefinition(callback){
 
@@ -170,7 +164,12 @@ function testUpdate(callback){
       return;
     }
 
-    book.update(doc.id(), { id: doc.id(), 'title':'foo', 'author':'bar', 'price': 3, 'tax':10 }, function(error){
+    doc.title('foo');
+    doc.author('bar');
+    doc.price('3$');
+    doc.tax(10);
+
+    book.update(doc.id(), doc, function(error){
 
       if(error){
         callback(error);
@@ -248,7 +247,10 @@ function testSave(callback){
     assert.ok( doc.createTS() );
     assert.ok( doc.lastUpdateTS() );
 
-    book.save({ 'id':doc.id(), 'title': doc.title() + ' 2', 'author': doc.author() }, function(error, copy){
+    doc.title('foo');
+    doc.author('bar');
+
+    book.save(doc, function(error, copy){
 
       if(error){
         callback(error);
@@ -256,8 +258,8 @@ function testSave(callback){
       }
 
       assert.equal( copy.id(), doc.id() );
-      assert.equal( copy.title(), 'White Fang 2' );
-      assert.equal( copy.author(), 'Jack London' );
+      assert.equal( copy.title(), 'foo' );
+      assert.equal( copy.author(), 'bar' );
       assert.equal( doc.price(), 6 );
       assert.ok( copy.createTS() );
       assert.ok( copy.lastUpdateTS() );

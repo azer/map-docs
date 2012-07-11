@@ -1,21 +1,15 @@
-var assert = require('assert'),
-    map    = require('../lib'),
-    arraydb = require('./array-db'),
-    types  = arraydb.types,
+var assert    = require('assert'),
 
-    book  = require('./book'),
+    arraydb   = require('./array-db'),
+    types     = arraydb.types,
 
-    whitefang = { 'title': 'White Fang', 'author': 'Jack London' },
-    ontheroad = { 'title': 'On The Road', 'author': 'Jack Kerouac' },
-    howl      = { 'title': 'Howl', 'author': 'Allen Ginsberg', 'price':8 },
+    map       = require('../lib'),
 
-    books     = [ whitefang, ontheroad, howl ],
-
-    fruits    = [
-      { 'name': 'apple', 'price': 3 },
-      { 'name': 'banana', 'price': 1 },
-      { 'name': 'orange', 'price': 4 }
-    ];
+    content   = require('./content'),
+    book      = content.book,
+    books     = content.books,
+    fruits    = content.fruits,
+    whitefang = content.whitefang;
 
 function testRemove(callback){
   book.insert(whitefang, function(_, doc){
@@ -36,33 +30,24 @@ function testRemove(callback){
 
 
 function testSave(callback){
-
-  doc.price('10.00$');
-  doc.tax(50);
-
-  doc.save(function(error, copy){
+  book.insert(whitefang, function(error, doc){
 
     if(error){
       callback(error);
       return;
     }
 
-    assert.equal( copy.price(), 15 );
-    callback();
+    doc.price('10.00$');
+    doc.tax(50);
 
-  });
-}
+    doc.save(function(error, copy){
 
-function testUpdate(callback){
-  copy.update({ 'title': 'quux' }, function(error, result){
+      if(error){
+        callback(error);
+        return;
+      }
 
-    book.one(doc.id(), function(_, copy){
-
-      assert.equal( copy.title(), 'quux');
-      assert.equal( copy.author(), 'bar');
-      assert.equal( copy.price(), 3.3);
-      assert.equal( copy.tax(), 10);
-
+      assert.equal( copy.price(), 15 );
       callback();
 
     });
@@ -70,33 +55,99 @@ function testUpdate(callback){
   });
 }
 
-function testSync(callback){
-  var wf = book.create(whitefang);
+function testUpdate(callback){
 
-  wf.sync({
-    'title': 'white fang 2',
-    'author': 'jack london 2'
-  });
-
-  assert.equal( wf.title(), 'white fang 2');
-  assert.equal( wf.author(), 'jack london 2');
-
-  wf.sync(function(error){
+  book.insert(whitefang, function(error, doc){
 
     if(error){
       callback(error);
       return;
     }
 
-    book.one(wf.id(), function(error, copy){
+    doc.update({ 'title': 'quux', 'author':'bar' }, function(error, result){
 
       if(error){
         callback(error);
         return;
       }
 
+      book.one(doc.id(), function(_, copy){
+
+        assert.equal( copy.title(), 'quux');
+        assert.equal( copy.author(), 'bar');
+        assert.equal( copy.price(), 6);
+        assert.equal( copy.tax(), 20);
+
+        callback();
+
+      });
 
     });
+
+  });
+}
+
+function testSync(callback){
+
+  var ts;
+
+  book.insert(whitefang, function(_, wf){
+
+    assert.ok(wf.sync.ts() > +(new Date)-100);
+
+    ts = wf.sync.ts();
+
+    setTimeout(function(){
+
+      wf.sync({
+        'title': 'foo',
+        'author': 'bar'
+      });
+
+      assert.ok( wf.sync.ts() > ts);
+
+      assert.ok( wf.id() );
+      assert.equal( wf.title(), 'foo');
+      assert.equal( wf.author(), 'bar');
+
+      book.one(wf.id(), function(error, copy){
+
+        if(error){
+          callback(error);
+          return;
+        }
+
+        assert.equal(copy.id(), wf.id());
+        assert.equal(copy.title(), 'White Fang');
+        assert.equal(copy.author(), 'Jack London');
+
+        wf.sync(function(error){
+
+          if(error){
+            callback(error);
+            return;
+          }
+
+          book.one(wf.id(), function(error, copy){
+
+            if(error){
+              callback(error);
+              return;
+            }
+
+            assert.equal(copy.id(), wf.id());
+            assert.equal(copy.title(), 'foo');
+            assert.equal(copy.author(), 'bar');
+
+            callback();
+
+          });
+
+        });
+
+      });
+
+    }, 50);
 
   });
 
@@ -122,6 +173,9 @@ function testToJSON(callback){
 }
 
 module.exports = {
+  'testRemove': testRemove,
+  'testSave': testSave,
+  'testUpdate': testUpdate,
   'testSync': testSync,
   'testToJSON': testToJSON
 };

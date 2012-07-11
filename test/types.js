@@ -1,6 +1,6 @@
 var assert = require('assert'),
     map    = require('../lib'),
-    book   = require('./book'),
+    book   = require('./content/book'),
     types  = map.types;
 
 function testNumber(callback){
