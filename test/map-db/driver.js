@@ -14,6 +14,10 @@ function find(collName, key, callback){
   callback(undefined, [coll(collName)[key]]);
 }
 
+function get(collName, key, callback){
+  callback(undefined, coll(collName)[key]);
+}
+
 function idFieldName(){
   return 'pk';
 }
@@ -38,9 +42,6 @@ function genkey(){
   return Math.floor( Math.random() * 99999999999 ).toString(36);
 }
 
-function one(collName, key, callback){
-  callback(undefined, coll(collName)[key]);
-}
 
 function save(collName, doc, callback){
   if( doc.pk != undefined ){
@@ -56,18 +57,23 @@ function remove(collName, key, callback){
   callback();
 }
 
-function update(collName, key, rpl, callback){
+function set(collName, key, rpl, callback){
   coll(collName)[key] = rpl;
   callback();
 }
+
+function toString(){
+  return 'map-db';
+};
 
 module.exports = {
   'all': coll,
   'find': find,
   'idFieldName': idFieldName,
   'insert': insert,
-  'one': one,
+  'get': get,
   'save': save,
   'remove': remove,
-  'update': update
+  'set': set,
+  'toString': toString
 };

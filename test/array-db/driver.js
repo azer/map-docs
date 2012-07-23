@@ -3,7 +3,7 @@
  * See the DB variable below.
  */
 
-var DB            = {};
+var DB = {};
 
 function coll(name){
   !DB[name] && ( DB[name] = [] );
@@ -12,6 +12,10 @@ function coll(name){
 
 function find(collName, id, callback){
   callback(undefined, [ coll(collName)[id] ]);
+}
+
+function get(collName, id, callback){
+  callback(undefined, coll(collName)[id]);
 }
 
 function insert(collName, docs, callback){
@@ -28,8 +32,9 @@ function insert(collName, docs, callback){
   callback(undefined, docs);
 }
 
-function one(collName, id, callback){
-  callback(undefined, coll(collName)[id]);
+function remove(collName, id, callback){
+  coll(collName)[id] = undefined;
+  callback();
 }
 
 function save(collName, doc, callback){
@@ -41,22 +46,22 @@ function save(collName, doc, callback){
   }
 }
 
-function remove(collName, id, callback){
-  coll(collName)[id] = undefined;
-  callback();
-}
-
-function update(collName, id, rpl, callback){
+function set(collName, id, rpl, callback){
   coll(collName)[id] = rpl;
   callback();
 }
+
+function toString(){
+  return 'array-db';
+};
 
 module.exports = {
   'all': coll,
   'find': find,
   'insert': insert,
-  'one': one,
+  'get': get,
   'save': save,
   'remove': remove,
-  'update': update
+  'set': set,
+  'toString': toString
 };

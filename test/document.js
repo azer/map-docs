@@ -164,7 +164,9 @@ function testToJSON(callback){
 
   assert.equal(fields.length, 7 );
   assert.equal(content.title, 'White Fang');
-  assert.equal(content.author, 'Jack London');
+
+  assert.equal(content.author.first_name, 'Jack');
+  assert.equal(content.author.last_name, 'London');
   assert.equal(content.price, 8);
   assert.equal(content.tax, 50);
 
