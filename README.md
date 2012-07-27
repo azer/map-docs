@@ -42,7 +42,7 @@ var joe = user({ // or user.create
 
 joe.messages.push( message({ text: 'Hi!' }), message({ text: 'This is Joe.' }), message({ text: 'I\'m from TX.' }) );
 
-joe.save();
+user.save(joe);
 
 console.log( joe.id() ); // 1
 console.log( joe.messages[0].id() ); // 47cc67093475061e3d95369d
@@ -60,8 +60,8 @@ user(1, function( error, results ){ // or user.find
 
     var joe = results[0];
 
-   joe.nickname(); // fast joe
-   joe.messages.length; // 3
+    joe.nickname(); // fast joe
+    joe.messages.length; // 3
 
 });
 
@@ -71,15 +71,15 @@ user(1, function( error, results ){ // or user.find
 
 ```js
 
-joe.subscribe(function( updates ){
+user.subscribe(joe, function( updates ){
 
-   console.log( updates ); // { nickname: 'very fast joe', messages:[...] } 
+    console.log( updates ); // { nickname: 'very fast joe', messages:[...] } 
 
 });
 
 joe.nickname('very fast joe');
 
-joe.sync(function( error, updates ){
+user.sync(joe, function( error, updates ){
 
     if(error) throw error;
 
