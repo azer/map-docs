@@ -1,12 +1,12 @@
 MapJS is a library for creating data-binding libraries that can interact with eachother.
 
+Status: In Development 
+
 # Install
 
 ```bash
 $ npm install map
-```
-
-Status: In Development  
+``` 
 
 # Usage Example
 
@@ -29,28 +29,60 @@ var message = mongo.schema('messages', {
 
 ```
 
-## Creating Documents
+## Creating and Saving Docs
 
 ```js
 
-var joe = user({
+var joe = user({ // or user.create
   'nickname': 'fast joe',
   'email': 'fastjoe@gmail.com'
 });
 
-joe.messages.push( message({ text: 'Hi!' }), 
-  message({ text: 'This is Joe.' }), 
-  message({ text: 'I\'m from TX.' }) );
+joe.messages.push( message({ text: 'Hi!' }), message({ text: 'This is Joe.' }), message({ text: 'I\'m from TX.' }) );
+
+joe.save();
+
+console.log( joe.id() ); // 1
+console.log( joe.messages[0].id() ); // 47cc67093475061e3d95369d
+console.log( joe.messages[0].user.nickname() ); // fast joe
 
 ```
 
-## Saving, Finding and Synchronization
-
-
-### Saving
+## Finding Docs
 
 ```js
 
-joe.save();
+user(1, function( error, results ){ // or user.find
+
+    if(error) throw error;
+
+    var joe = results[0];
+
+   joe.nickname(); // fast joe
+   joe.messages.length; // 3
+
+});
+
+```
+
+### Synchronization
+
+```js
+
+joe.subscribe(function( updates ){
+
+   console.log( updates ); // { nickname: 'very fast joe', messages:[...] } 
+
+});
+
+joe.nickname('very fast joe');
+
+joe.sync(function( error, updates ){
+
+    if(error) throw error;
+
+    console.log( updates ); // { nickname: 'very fast joe', messages:[...] } 
+
+});
 
 ```
