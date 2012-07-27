@@ -65,7 +65,7 @@ user(1, function( error, results ){ // or user.find
 
 ```
 
-### Synchronization
+## Synchronization
 
 ```js
 
