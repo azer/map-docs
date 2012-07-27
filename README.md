@@ -1,6 +1,7 @@
 MapJS is a library for creating data-binding libraries that can interact with eachother.
 
-Status: In Development 
+** Target Platforms: ** NodeJS, B2G and Web Browsers
+** Status: ** In Development 
 
 # Install
 
