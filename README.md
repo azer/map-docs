@@ -42,11 +42,13 @@ var joe = user({ // or user.create
 
 joe.messages.push( message({ text: 'Hi!' }), message({ text: 'This is Joe.' }), message({ text: 'I\'m from TX.' }) );
 
-user.save(joe);
+user.save(joe, function(error){
 
-console.log( joe.id() ); // 1
-console.log( joe.messages[0].id() ); // 47cc67093475061e3d95369d
-console.log( joe.messages[0].user.nickname() ); // fast joe
+    console.log( joe.id() ); // 1
+    console.log( joe.messages[0].id() ); // 47cc67093475061e3d95369d
+    console.log( joe.messages[0].user.nickname() ); // fast joe
+
+});
 
 ```
 
