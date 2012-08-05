@@ -84,14 +84,14 @@ function testIsDocument(callback){
 
 function testFind(callback){
 
-  book.insert(books.map(book.create), function(error, docs){
+  book.save(book(whitefang), function(error, id){
 
     if(error){
       callback(error);
       return;
     }
 
-    book.find(docs[0].id(), function(error, results){
+    book.find({ price:5 }, function(error, results){
 
       if(error){
         callback(error);
@@ -110,21 +110,23 @@ function testFind(callback){
 
 function testGet(callback){
 
-  book.insert(book(whitefang), function(error, entry){
+  var entry = book(whitefang);
+
+  book.save(entry, function(error, id){
 
     if(error){
       callback(error);
       return;
     };
 
-    book.get(entry.id(), function(error, copy){
+    book.get(id, function(error, copy){
 
       if(error){
         callback(error);
         return;
       }
 
-      assert.equal(copy.id(), entry.id());
+      assert.ok(copy.id() != undefined);
       assert.equal(copy.title(), entry.title());
       assert.equal(copy.author.firstName(), entry.author.firstName());
       assert.equal(copy.author.lastName(), entry.author.lastName());
@@ -278,37 +280,57 @@ function testRemove(callback){
 
 function testSave(callback){
 
-  book.save(whitefang, function(error, doc){
+  book.save(book(whitefang), function(error, id){
 
     if(error){
       callback(error);
       return;
     }
 
-    assert.equal( doc.title(), 'White Fang' );
-    assert.equal( doc.author(), 'Jack London' );
-    assert.equal( doc.price(), 6 );
-    assert.ok( doc.createTS() );
-    assert.ok( doc.lastUpdateTS() );
-
-    doc.title('foo');
-    doc.author('bar');
-
-    book.save(doc, function(error, copy){
+    book.get(id, function(error, doc){
 
       if(error){
         callback(error);
         return;
       }
 
-      assert.equal( copy.id(), doc.id() );
-      assert.equal( copy.title(), 'foo' );
-      assert.equal( copy.author(), 'bar' );
-      assert.equal( doc.price(), 6 );
-      assert.ok( copy.createTS() );
-      assert.ok( copy.lastUpdateTS() );
+      assert.equal( doc.title(), 'White Fang' );
+      assert.equal( doc.author.firstName(), 'Jack');
+      assert.equal( doc.price(), '$6' );
+      assert.ok( doc.createTS() );
+      assert.ok( doc.lastUpdateTS() );
 
-      callback();
+      doc.title('foo');
+      doc.author.firstName('bar');
+
+      book.save(doc, function(error, idcopy){
+
+        if(error){
+          callback(error);
+          return;
+        }
+
+        assert.equal(id, idcopy);
+
+        book(id, function(error, copy){
+
+          if(error){
+            callback(error);
+            return;
+          }
+
+          assert.equal( copy.id(), doc.id() );
+          assert.equal( copy.title(), 'Foo' );
+          assert.equal( copy.author.firstName(), 'Bar' );
+          assert.equal( doc.price(), '$6' );
+          assert.ok( copy.createTS() );
+          assert.ok( copy.lastUpdateTS() );
+
+          callback();
+
+        });
+
+      });
 
     });
 

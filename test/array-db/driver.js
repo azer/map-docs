@@ -18,32 +18,19 @@ function get(collName, id, callback){
   callback(undefined, coll(collName)[id]);
 }
 
-function insert(collName, docs, callback){
-  if( Array.isArray(docs) ){
-
-    docs.forEach(function(doc){
-      doc.id = coll(collName).push(doc) - 1;
-    });
-
-  } else {
-    docs.id = coll(collName).push(docs) - 1;
-  }
-
-  callback(undefined, docs);
-}
-
 function remove(collName, id, callback){
   coll(collName)[id] = undefined;
   callback();
 }
 
 function save(collName, doc, callback){
-  if( doc.id != undefined ){
-    coll(collName)[ doc.id ] = doc;
-    callback(undefined, doc);
+  if(doc.id == undefined){
+    doc.id = coll(collName).push(doc) - 1;
   } else {
-    insert(collName, doc, callback);
+    coll(collName)[doc.id] = doc;
   }
+
+  callback(undefined, doc.id);
 }
 
 function set(collName, id, rpl, callback){
@@ -58,7 +45,6 @@ function toString(){
 module.exports = {
   'all': coll,
   'find': find,
-  'insert': insert,
   'get': get,
   'save': save,
   'remove': remove,
