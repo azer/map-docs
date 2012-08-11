@@ -49,8 +49,6 @@ function testCreate(callback){
   assert.equal( foo.author.firstName(), 'Corge');
   assert.equal( foo.author.lastName(), 'Qux');
 
-
-
   foo.title('f00');
   assert.equal( foo.title(), 'F00');
 
@@ -70,7 +68,6 @@ function testCreate(callback){
   assert.equal( qux.author.lastName(), 'Koculu' );
 
   callback();
-
 }
 
 function testIsDocument(callback){
@@ -135,94 +132,18 @@ function testGet(callback){
       assert.equal(copy.createTS(), entry.createTS());
       assert.ok(copy.lastUpdateTS(), entry.lastUpdateTS());
 
-      callback();
+      copy.foo = 1;
+      copy.author = 1;
 
-    });
-
-  });
-
-}
-
-function testInsert(callback){
-
-  book.insert(book(whitefang), function(error, doc){
-
-    if(error){
-      callback(error);
-      return;
-    }
-
-    assert.equal( doc.title(), 'White Fang' );
-    assert.ok( doc.author.id() );
-    assert.equal( doc.author.firstName(), 'Jack' );
-    assert.equal( doc.author.lastName(), 'London' );
-    assert.equal( doc.price(), '$6');
-    assert.equal( doc.tax(), 20);
-    assert.ok( doc.createTS() > +(new Date) - 250);
-    assert.ok( doc.lastUpdateTS() > +(new Date) - 250);
-
-    book.insert(books.map(book.create), function(error, docs){
-
-      if(error){
-        callback(error);
-        return;
-      }
-
-      assert.equal( docs[0].title(), 'White Fang' );
-      assert.equal( docs[1].author.firstName(), 'Jack' );
-      assert.equal( docs[1].author.lastName(), 'Kerouac' );
-      assert.equal( docs[2].price(), '$9.6');
-      assert.equal( docs[0].tax(), 20);
-      assert.ok( docs[0].createTS() > +(new Date) - 250);
-      assert.ok( docs[1].lastUpdateTS() > +(new Date) - 250);
-      assert.ok( docs[0].id() );
-
-      book.insert(book({ 'title': 'foo' }), function(error){
-
-        assert.ok(error);
-        callback();
-
-      });
-
-    });
-
-  });
-
-}
-
-
-function testSet(callback){
-  book.insert(book(whitefang), function(error, doc){
-
-    if(error){
-      callback(error);
-      return;
-    }
-
-    doc.title('foo');
-    doc.author.firstName('bar');
-    doc.price('$3');
-    doc.tax(10);
-
-    book.set(doc.id(), doc, function(error){
-
-      if(error){
-        callback(error);
-        return;
-      }
-
-      book.get(doc.id(), function(error, copy){
+      book.get(id, function(error, copy){
 
         if(error){
           callback(error);
           return;
         }
 
-        assert.equal( copy.id(), doc.id());
-        assert.equal( copy.title(), 'Foo');
-        assert.equal( copy.author.firstName(), 'Bar');
-        assert.equal( copy.price(), '$3.3');
-        assert.equal( copy.tax(), 10);
+        assert.ok(!copy.foo);
+        assert.notEqual(copy.foo, 1);
 
         callback();
 
@@ -235,30 +156,28 @@ function testSet(callback){
 }
 
 function testRemove(callback){
-  book.insert(book(whitefang), function(error, doc){
+  book.save(book(whitefang), function(error, id){
 
     if(error) {
       callback(error);
       return;
     }
 
-    book.remove(doc.id(), function(error){
+    book.get(id, function(error, doc){
 
-      if(error) {
+      if(error){
         callback(error);
         return;
       }
 
-      book.get(doc.id(), function(error, copy){
+      book.remove(id, function(error){
 
         if(error) {
           callback(error);
           return;
         }
 
-        assert.ok( !copy );
-
-        author.get(doc.author.id(), function(error, copy){
+        book.get(id, function(error, copy){
 
           if(error) {
             callback(error);
@@ -267,7 +186,18 @@ function testRemove(callback){
 
           assert.ok( !copy );
 
-          callback();
+          author.get(doc.author.id(), function(error, copy){
+
+            if(error) {
+              callback(error);
+              return;
+            }
+
+            assert.ok( !copy );
+
+            callback();
+
+          });
 
         });
 
@@ -295,6 +225,7 @@ function testSave(callback){
       }
 
       assert.equal( doc.title(), 'White Fang' );
+
       assert.equal( doc.author.firstName(), 'Jack');
       assert.equal( doc.price(), '$6' );
       assert.ok( doc.createTS() );
@@ -460,10 +391,8 @@ module.exports = {
   'testDefinition': testDefinition,
   'testFind': testFind,
   'testGet': testGet,
-  'testSet': testSet,
   'testRemove': testRemove,
   'testSave': testSave,
   'testValidateDocument': testValidateDocument,
-  'testInsert': testInsert,
   'testIsDocument': testIsDocument
 };

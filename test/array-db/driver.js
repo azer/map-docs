@@ -5,6 +5,10 @@
 
 var DB = {};
 
+function clone(obj){
+  return obj ? JSON.parse(JSON.stringify(obj)) : undefined;
+}
+
 function coll(name){
   !DB[name] && ( DB[name] = [] );
   return DB[name];
@@ -15,7 +19,7 @@ function find(collName, id, callback){
 }
 
 function get(collName, id, callback){
-  callback(undefined, coll(collName)[id]);
+  callback(undefined, clone(coll(collName)[id]));
 }
 
 function remove(collName, id, callback){

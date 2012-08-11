@@ -50,6 +50,10 @@ user.save(joe, function(error){
 
 });
 
+user.remove(joe.id(), function(error){
+
+});
+
 ```
 
 ## Getting & Finding Docs
@@ -100,9 +104,7 @@ user.all('id', function( error, results ){ // or user.find({ 'price':{ '$gte':5 
 
     user.map(user.get, results.slice(0, 3), function(error, users){
 
-      if(error) throw error;
-
-      var joe = results[0];
+      if(error) throw       var joe = results[0];
 
       joe.nickname(); // fast joe
       joe.messages.length; // 3
@@ -148,7 +150,7 @@ user.sync(joe, function( error, updates ){
 * set (optional)
 * toString
 
-### Example
+### Example #1
 
 ```js
 var colls = {};
@@ -190,4 +192,23 @@ module.exports = map.newDriver({
     save: save,
     toString: toString
 });
+```
+
+# Example #2
+
+```js
+
+var mapfiles = require('map-files');
+
+var files = mapfiles('/home/azer/docs',{
+    'name': String,
+    'content': String
+});
+
+files.get('personal.gtd', ..
+
+files.find('*erso*' ...
+
+files.all(
+
 ```
