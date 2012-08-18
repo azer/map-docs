@@ -7,11 +7,11 @@
   "directories":{ "lib": "./lib" },
   "main":"./lib",
   "repository": { "type":"git",  "url" : "http://github.com/azer/map.git" },
-  "dependencies": {
-    "debug": "git://github.com/azer/debug.git"
-  },
   "devDependencies":{
-    "highkick": "1.x"
+    "debug": "git://github.com/azer/debug.git",
+    "coffee-script": "x",
+    "highkick": "1.x",
+    "functools": "1.x"
   },
   "scripts":{
     "test": "./node_modules/.bin/highkick test/main.js"
