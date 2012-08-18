@@ -148,7 +148,7 @@ user = mongodb 'users', {
 
 Demonstration:
 
-```
+```js
 var user     = require('user'),
     document = require('document');
 
