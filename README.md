@@ -10,107 +10,175 @@ MapJS is a library for creating data-binding libraries that can interact with ea
 $ npm install map
 ```
 
-# Usage Example
+# Manual
 
-## Defining Schemas
+## Creating Libraries
 
-```js
+### A Basic Usage
 
-var mongo    = require('map-mongo'),
-    postgres = require('map-postgres');
-
-var user = postgres.schema('users', {
-  'nickname': postgres.types.string,
-  'email': postgres.types.email
-});
-
-var message = mongo.schema('messages', {
-  'author': user,
-  'text': mongo.types.string
-});
-
-```
-
-## Creating and Saving Docs
+Driver Implementation:
 
 ```js
 
-var joe = user({ // or user.create
-  'nickname': 'fast joe',
-  'email': 'fastjoe@gmail.com'
-});
+// basic-db.js
 
-joe.messages.push( message({ text: 'Hi!' }), message({ text: 'This is Joe.' }), message({ text: 'I\'m from TX.' }) );
+var map = require('map');
 
-user.save(joe, function(error){
+function get(query, callback){ /* impl */ }
 
-    console.log( joe.id() ); // 1
-    console.log( joe.messages[0].id() ); // 47cc67093475061e3d95369d
-    console.log( joe.messages[0].user.nickname() ); // fast joe
+function find(query, callback){ /* impl */ }
 
-});
+function save(content, callback){ /* impl */ }
 
-user.remove(joe.id(), function(error){
-
-});
-
-```
-
-## Getting & Finding Docs
-
-```js
-user(1, function(error, joe){ // or user.get
-
-    if(error){
-        callback(error);
-        return;
-    }
-
-    joe.nickname(); // fast joe
-    joe.messages.length; // 3
-
+module.exports = map({
+    'get': get,
+    'find': find,
+    'save': save
 });
 ```
 
-### Finding
+Defining schemas via drivers:
+
+*JavaScript:*
 
 ```js
-user.find({ 'price': { '$gte': 5 }  }, ['id'], function(error, results){
+// document.js
 
-    if(error){
-        callback(error);
-        return;
-    }
+var basicdb = require('./basic-db');
 
-    var joe = results[0];
-    joe.nickname(); // fast joe
-    joe.messages.length; // 3
-
+module.exports = basicdb({
+    'title': { type: String, 'min': 2, 'max': 255  },
+    'content': String
+    'lastModifiedTS': Date
 });
 ```
 
-### Lazy Loading Nested Docs
+*CoffeeScript*
+
+```coffee
+// document.coffee
+
+basicdb = require './basic-db'
+
+module.exports = basicdb {
+  title: String
+  content: String
+  lastModifiedTS: Date
+}
+```
+
+Creating Documents
 
 ```js
 
-user.all('id', function( error, results ){ // or user.find({ 'price':{ '$gte':5 } }, ['id'], function(...
+var document = require('./document');
+
+var foo = document({
+    'title': 'Hello World',
+    'content': 'This tiny document needs some friends!'
+});
+
+foo.id(); // undefined
+foo.title(); // "Hello World"
+foo.content(); // "This tiny...
+
+document.save(foo, function(error){
 
     if(error) throw error;
 
-    results.length; // 2137843
-    results[0]; // 1
-    results[1]; // 2
-    results[2]; // 3
+    foo.id(); // "/docs/hello_world.txt"
 
-    user.map(user.get, results.slice(0, 3), function(error, users){
+});
 
-      if(error) throw       var joe = results[0];
+```
 
-      joe.nickname(); // fast joe
-      joe.messages.length; // 3
+### Using More Definition Options
+
+Defining the driver:
+
+```js
+// mongodb.js
+
+var map = require('map');
+
+function find(coll, query, callback){ /* impl */ }
+
+function save(coll, content, callback){ /* impl */ }
+
+module.exports = map({
+    'idFieldName': '_id',
+    'find': find,
+    'save': save
+});
+```
+
+Passing parameters from schema definitions:
+
+*JavaScript*
+
+```js
+// user.js
+
+var mongodb  = require('./mongodb'),
+    document = require('./document');
+
+var user = mongodb('users',{ // Parameters can be passed before model structures
+    'nickname': { type: String, 'min': 2, 'max': 16 },
+    'email': mongodb.types.email,
+    'docs': mongodb.types.oneToMany(document)
+});
+```
+
+*CoffeeScript:*
+
+```coffee
+
+// user.coffee
+
+mongodb = require './mongodb'
+document = require './document'
+
+user = mongodb 'users', {
+  nickname: String
+  email: mongodb.types.email
+  docs: mongodb.types.oneToMany document
+}
+
+```
+
+Demonstration:
+
+```
+var user     = require('user'),
+    document = require('document');
+
+var joe = user({
+    'nickname': 'Fast Joe',
+    'email': 'fastjoe@mail.com'
+});
+
+joe.nickname(); // "Fast Joe"
+joe.email(); // "fastjoe@mail.com"
+joe.docs(); // []
+
+document('/docs/hello_world.txt', function(error, helloWorld){ // or document.get
+
+    if(error) throw error;
+
+    joe.docs.push(helloWorld);
+
+    user.save(joe, function(error){
+
+        if(error) throw error;
+
+        user(joe.id(), function(error, joe){
+
+            if(error) throw error;
+
+            joe.docs(); // [helloWorld]
+        });
 
     });
-
 });
 
 ```
@@ -134,81 +202,5 @@ user.sync(joe, function( error, updates ){
     console.log( updates ); // { nickname: 'very fast joe', messages:[...] }
 
 });
-
-```
-
-## Creating Libraries
-
-### Main Interface
-
-* coll
-* find (optional)
-* get
-* idFieldName (optional)
-* remove (optional)
-* save (optional)
-* set (optional)
-* toString
-
-### Example #1
-
-```js
-var colls = {};
-
-function coll(name){
-    !colls[name] && ( colls[name] = [] );
-    return colls[name];
-}
-
-function get(collName, id, callback){
-    callback(undefined, coll(collName)[id]);
-}
-
-// extensions are allowed
-function insert(collName, objects, callback){
-    objects.forEach(function(el){
-      el.id = coll(collName).push(el) - 1;
-    });
-}
-
-function save(){
-    if(doc.id == undefined){
-        doc.id = coll(collName).push(doc) - 1;
-    } else {
-        coll(collName)[doc.id] = doc;
-    }
-
-    callback(undefined, doc.id);
-}
-
-function toString(){
-    return 'hashdb';
-}
-
-module.exports = map.newDriver({
-    coll: coll,
-    get: get,
-    insert: insert,
-    save: save,
-    toString: toString
-});
-```
-
-# Example #2
-
-```js
-
-var mapfiles = require('map-files');
-
-var files = mapfiles('/home/azer/docs',{
-    'name': String,
-    'content': String
-});
-
-files.get('personal.gtd', ..
-
-files.find('*erso*' ...
-
-files.all(
 
 ```
