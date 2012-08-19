@@ -52,10 +52,20 @@ testNewSchema = (callback) ->
 
   schema1 = map.schema.newSchema driver1, fields1
 
+  schema2 = driver1 'option1', 'option2', 3.14, {
+    foo: Number,
+    bar: Number
+  }
+
   assert.equal schema1.isSchema, true
   assert.equal schema1.driver, driver1
-  assert.deepEqual schema1.params, []
+  assert.deepEqual schema1.options, []
   assert.deepEqual Object.keys(schema1.fields), ['foo', 'bar']
+
+  assert.equal schema2.isSchema, true
+  assert.equal schema2.driver, driver1
+  assert.deepEqual schema2.options, ['option1', 'option2', 3.14]
+  assert.deepEqual Object.keys(schema2.fields), ['foo', 'bar']
 
   callback()
 
