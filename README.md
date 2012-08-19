@@ -4,15 +4,15 @@ MapJS is a library for creating data-binding libraries that can interact with ea
 
 **Status:** In Development
 
-# Install
+# INSTALL
 
 ```bash
 $ npm install map
 ```
 
-# Usage
+# USAGE
 
-## Creating Drivers
+### Creating Drivers
 
 ```js
 
@@ -33,7 +33,7 @@ module.exports = map({
 });
 ```
 
-## Schemas
+### Schemas
 
 *JavaScript:*
 
@@ -63,7 +63,7 @@ module.exports = basicdb {
 }
 ```
 
-## Documents
+### Documents
 
 ```js
 
