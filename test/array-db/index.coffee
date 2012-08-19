@@ -11,6 +11,8 @@ clone = (obj) ->
 find = (query, callback) ->
   results = []
 
+  return callback undefined, DB if not query
+
   for el in DB
     matches = Object.keys(query).every (key) ->
       return el[key] == query[key]
@@ -23,6 +25,11 @@ get = (index, callback) ->
   callback undefined, clone DB[index]
 
 remove = (index, callback) ->
+
+  if not index
+    DB = []
+    return callback()
+
   DB[index] = undefined
   callback()
 

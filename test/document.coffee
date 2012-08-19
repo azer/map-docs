@@ -106,34 +106,47 @@ testFind = (callback) ->
   functools.map.async book.save, [ whitefang, ontheroad, howl ], (error) ->
     return callback error if error
 
-    book.find { price: 4 }, (error, results) ->
+    book.find (error, results) ->
+      return callback error if error
 
-      assert.equal results.length, 2
+      assert.ok results.length >= 3
 
-      assert.equal results[0].title(), 'On The Road'
-      assert.equal results[0].author(), 1
-      assert.equal results[0].price(), '$4.8'
-      assert.equal results[0].price.raw(), 4
-      assert.equal results[0].tax(), 20
-
-      assert.equal results[1].title(), 'Howl'
-      assert.equal results[1].author(), 2
-      assert.equal results[1].price(), '$6'
-      assert.equal results[1].price.raw(), 4
-      assert.equal results[1].tax(), 50
-
-      author.save asimov, (error, id) ->
+      book.find { price: 4 }, (error, results) ->
         return callback error if error
 
-        author.find { 'id': id }, (error, results) ->
+        assert.equal results.length, 2
+
+        assert.equal results[0].title(), 'On The Road'
+        assert.equal results[0].author(), 1
+        assert.equal results[0].price(), '$4.8'
+        assert.equal results[0].price.raw(), 4
+        assert.equal results[0].tax(), 20
+
+        assert.equal results[1].title(), 'Howl'
+        assert.equal results[1].author(), 2
+        assert.equal results[1].price(), '$6'
+        assert.equal results[1].price.raw(), 4
+        assert.equal results[1].tax(), 50
+
+        author.save asimov, (error, id) ->
           return callback error if error
 
-          assert.equal results.length, 1
+          author.find { 'id': id }, (error, results) ->
+            return callback error if error
 
-          assert.equal results[0].firstName(), 'Isaac'
-          assert.equal results[0].lastName(), 'Asimov'
+            assert.equal results.length, 1
 
-          callback()
+            assert.equal results[0].firstName(), 'Isaac'
+            assert.equal results[0].lastName(), 'Asimov'
+
+            book.remove (error) ->
+              return callback error if error
+
+              book.find (error, results) ->
+                return callback error if error
+                assert.equal results.length, 0
+
+                callback()
 
 testFindSubDocs = (callback) ->
   callback new Error 'No Implemented'
@@ -238,7 +251,6 @@ testSaveSubDocs = (callback) ->
 testValidation = (callback) ->
 
 testToJSON = (callback) ->
-  callback new Error 'not implemented'
 
 module.exports =
   testCreatingSubDocs : testCreatingSubDocs
@@ -247,4 +259,3 @@ module.exports =
   testNewDocument     : testNewDocument
   testSave            : testSave
   testRemove          : testRemove
-  testToJSON          : testToJSON
