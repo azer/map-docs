@@ -3,7 +3,7 @@ map = require '../../lib'
 DB = []
 
 clone = (obj) ->
-  if typeof obj == object
+  if typeof obj == 'object'
     JSON.parse( JSON.stringify(obj) )
   else
     obj
@@ -23,7 +23,7 @@ get = (index, callback) ->
   callback undefined, clone DB[index]
 
 remove = (index, callback) ->
-  DB[obj.index] = undefined
+  DB[index] = undefined
   callback()
 
 save = (obj, callback) ->

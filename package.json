@@ -1,7 +1,7 @@
 {
   "name":"map",
-  "version":"0.0.1",
-  "description":"Functional ORM Library for both NodeJS and Web Browsers",
+  "version":"0.0.2",
+  "description":"A Library For Creating Data-Binding Libraries",
   "author":"Azer Koculu <azer@kodfabrik.com>",
   "keywords":["orm", "functional", "fp", "mongo", "mongodb", "database"],
   "directories":{ "lib": "./lib" },

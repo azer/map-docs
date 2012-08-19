@@ -8,7 +8,15 @@ coll = (name) ->
   DB[name]
 
 find = (collName, query, callback) ->
-  throw new Error 'Not Implemented'
+  results = []
+
+  for key, record of DB[collName]
+    matches = Object.keys(query).every (key) ->
+      return record[key] == query[key]
+
+    results.push record if matches
+
+  callback undefined, results
 
 generateKey = ->
   return Math.floor( Math.random() * 99999999999 ).toString 36
@@ -20,7 +28,7 @@ remove = (collName, key, callback) ->
   delete coll(collName)[key]
   callback()
 
-save = (collName, key, callback) ->
+save = (collName, doc, callback) ->
 
   if doc.key == undefined
     doc.key = generateKey()

@@ -87,12 +87,20 @@ testFind = (callback) ->
 
   ontheroad = book {
     title: 'on the road'
+    author: 1
     price: 4
   }
 
   howl = book {
     title: 'howl'
+    author: 2
     price: 4
+    tax: 50
+  }
+
+  asimov = author {
+    firstName: 'isaac'
+    last_name: 'asimov'
   }
 
   functools.map.async book.save, [ whitefang, ontheroad, howl ], (error) ->
@@ -100,9 +108,106 @@ testFind = (callback) ->
 
     book.find { price: 4 }, (error, results) ->
 
-      assert.equal results.length 2
+      assert.equal results.length, 2
+
+      assert.equal results[0].title(), 'On The Road'
+      assert.equal results[0].author(), 1
+      assert.equal results[0].price(), '$4.8'
+      assert.equal results[0].price.raw(), 4
+      assert.equal results[0].tax(), 20
+
+      assert.equal results[1].title(), 'Howl'
+      assert.equal results[1].author(), 2
+      assert.equal results[1].price(), '$6'
+      assert.equal results[1].price.raw(), 4
+      assert.equal results[1].tax(), 50
+
+      author.save asimov, (error, id) ->
+        return callback error if error
+
+        author.find { 'id': id }, (error, results) ->
+          return callback error if error
+
+          assert.equal results.length, 1
+
+          assert.equal results[0].firstName(), 'Isaac'
+          assert.equal results[0].lastName(), 'Asimov'
+
+          callback()
+
+testFindSubDocs = (callback) ->
+  callback new Error 'No Implemented'
+
+testGet = (callback) ->
+  whitefang = book {
+    title: 'white fang',
+    author: 'jl'
+  }
+
+  book.save whitefang, (error, id) ->
+    return callback error if error
+
+    book.get id, (error, copy) ->
+      return callback error if error
+
+      assert.equal copy.id(), id
+      assert.equal copy.title(), 'White Fang'
+      assert.equal copy.author(), 'jl'
 
       callback()
+
+testGetSubDocs = (callback) ->
+  callback new Error 'No Implemented'
+
+
+testRemove = (callback) ->
+  whitefang = book {
+    title: 'white fang',
+    author: 'jl'
+  }
+
+  asimov = author {
+    firstName: 'isaac'
+    last_name: 'asimov'
+  }
+
+  book.save whitefang, (error) ->
+    return callback error if error
+
+    wfid = whitefang.id()
+
+    author.save asimov, (error) ->
+      return callback error if error
+
+      iaid = asimov.id()
+
+      book.remove whitefang, (error) ->
+        return callback error if error
+
+        assert.equal whitefang.id(), undefined
+
+        book.get wfid, (error, nonexisting) ->
+          return callback error if error
+
+          assert.equal nonexisting, undefined
+
+          author.remove asimov, (error) ->
+            return callback error if error
+
+            assert.equal asimov.id(), undefined
+
+            book.get iaid, (error, nonexisting) ->
+              return callback error if error
+
+              assert.equal nonexisting, undefined
+
+              callback()
+
+testRemoveByQueries = (callback) ->
+  callback new Error 'Not Implemented'
+
+testRemoveSubDocs = (callback) ->
+  callback new Error 'No Implemented'
 
 testSave = (callback) ->
   whitefang = book {
@@ -110,17 +215,36 @@ testSave = (callback) ->
     author: 'jl'
   }
 
+  asimov = author {
+    firstName: 'isaac'
+    last_name: 'asimov'
+  }
+
   book.save whitefang, (error, id) ->
-    console.log '-->', id
-    callback()
+    return callback error if error
+
+    assert.notEqual id, undefined
+    assert.equal id, whitefang.id()
+
+    author.save asimov, (error, id) ->
+      return callback error if error
+      assert.notEqual id, undefined
+      assert.equal id, asimov.id()
+
+      callback()
+
+testSaveSubDocs = (callback) ->
+
+testValidation = (callback) ->
 
 testToJSON = (callback) ->
   callback new Error 'not implemented'
 
-
 module.exports =
   testCreatingSubDocs : testCreatingSubDocs
   testFind            : testFind
+  testGet             : testGet
   testNewDocument     : testNewDocument
   testSave            : testSave
+  testRemove          : testRemove
   testToJSON          : testToJSON
