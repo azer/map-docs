@@ -10,13 +10,9 @@ MapJS is a library for creating data-binding libraries that can interact with ea
 $ npm install map
 ```
 
-# Manual
+# Usage
 
-## Creating Libraries
-
-### A Basic Usage
-
-Driver Implementation:
+## Creating Drivers
 
 ```js
 
@@ -37,7 +33,7 @@ module.exports = map({
 });
 ```
 
-Defining schemas via drivers:
+## Schemas
 
 *JavaScript:*
 
@@ -67,7 +63,7 @@ module.exports = basicdb {
 }
 ```
 
-Creating Documents
+## Documents
 
 ```js
 
@@ -92,9 +88,9 @@ document.save(foo, function(error){
 
 ```
 
-### Using More Definition Options
+### Passing Options Between Drivers and Schemas
 
-Defining the driver:
+Driver:
 
 ```js
 // mongodb.js
@@ -112,7 +108,7 @@ module.exports = map({
 });
 ```
 
-Passing parameters from schema definitions:
+Schema:
 
 *JavaScript*
 
@@ -146,7 +142,7 @@ user = mongodb 'users', {
 
 ```
 
-Demonstration:
+# Usage Demonstration
 
 ```js
 var user     = require('user'),
