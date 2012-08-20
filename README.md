@@ -179,7 +179,7 @@ document('/docs/hello_world.txt', function(error, helloWorld){ // or document.ge
 
 ```
 
-## Publish & Subscription
+## Pub/Sub
 
 ### Subscription
 
@@ -192,7 +192,7 @@ people.subscribe joe, (updatedFields) ->
 joe.name 'very fast joe'
 joe.age 19
 
-setTimeout ->
+process.nextTick->
     joe.name 'very, very fast joe'
 ```
 
