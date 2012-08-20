@@ -1,8 +1,8 @@
-highkick = require 'highkick'
-assert   = require 'assert'
+highkick     = require 'highkick'
+assert       = require 'assert'
 
-map      = require '../lib'
-id       = require '../lib/id'
+map          = require '../lib'
+id           = require '../lib/id'
 
 testSchema   = highkick './schema'
 testDocument = highkick './document'
