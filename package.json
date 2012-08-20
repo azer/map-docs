@@ -1,6 +1,6 @@
 {
   "name":"map",
-  "version":"0.0.2",
+  "version":"0.0.3",
   "description":"A Library For Creating Data-Binding Libraries",
   "author":"Azer Koculu <azer@kodfabrik.com>",
   "keywords":["orm", "functional", "fp", "mongo", "mongodb", "database"],
