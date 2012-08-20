@@ -179,24 +179,42 @@ document('/docs/hello_world.txt', function(error, helloWorld){ // or document.ge
 
 ```
 
-## Synchronization
+## Publish & Subscription
 
-```js
+### Subscription
 
-user.subscribe(joe, function( updates ){
+CoffeeScript:
 
-    console.log( updates ); // { nickname: 'very fast joe', messages:[...] }
+```coffee
+people.subscribe joe, (updatedFields) ->
+    console.log updatedFields
 
-});
+joe.name 'very fast joe'
+joe.age 19
 
-joe.nickname('very fast joe');
+setTimeout ->
+    joe.name 'very, very fast joe'
+```
 
-user.sync(joe, function( error, updates ){
+The code above will output:
+```
+['name', 'age']
+['name']
+```
 
-    if(error) throw error;
+### Publish
 
-    console.log( updates ); // { nickname: 'very fast joe', messages:[...] }
+CoffeeScript
 
-});
+```coffee
+people.publish joe, {
+  name: 'super fast joe.'
+  age: 20
+}
+```
 
+Will output:
+
+```
+['name', 'age']
 ```
