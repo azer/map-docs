@@ -29,3 +29,4 @@ module.exports =
   testId       : testId
   testDocument : testDocument
   testSchema   : testSchema
+  testTypes    : testTypes
