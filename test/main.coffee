@@ -6,6 +6,7 @@ id       = require '../lib/id'
 
 testSchema   = highkick './schema'
 testDocument = highkick './document'
+testTypes    = highkick './types'
 
 testId = (callback) ->
 

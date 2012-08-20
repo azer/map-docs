@@ -1,12 +1,14 @@
-assert    = require 'assert'
-functools = require 'functools'
+assert      = require 'assert'
+functools   = require 'functools'
 
-map    = require '../lib'
-book    = require './content/book'
-arraydb = require './array-db'
+map         = require '../lib'
+book        = require './content/book'
+arraydb     = require './array-db'
 
-author  = require './content/author'
-mapdb   = require './map-db'
+author      = require './content/author'
+mapdb       = require './map-db'
+
+throwsError = require './throws-error'
 
 testNewDocument = (callback) ->
 
@@ -250,7 +252,56 @@ testSaveSubDocs = (callback) ->
 
 testValidation = (callback) ->
 
+  driver1 = map {}
+
+  schema1 = driver1 {
+    foo : String,
+    bar : Number,
+    qux : { type: Date, auto: true }
+  }
+
+  doc1 = schema1 {
+    foo: 'hello-world'
+    bar: 123
+  }
+
+  schema1.validate doc1
+
+  assert.ok doc1.qux()
+  assert.ok +(doc1.qux()) > +(new Date)-250
+
+  doc2 = schema1 {
+    foo: 'foo'
+  }
+
+  throwsError ->
+    schema1.validate doc2
+
+  callback()
+
 testToJSON = (callback) ->
+
+  ontheroad = book {
+    index: 1
+    title: 'on the road'
+    author: author {
+      key: 'jk'
+      first_name: 'Jack'
+      last_name: 'Kerouac'
+    }
+  }
+
+  content = book.toJSON ontheroad
+  fields  = Object.keys content
+
+  assert.equal fields.length, 5
+  assert.equal content.title, 'On The Road'
+  assert.equal content.author.first_name, 'Jack'
+  assert.equal content.author.last_name, 'Kerouac'
+  assert.equal content.price, 5
+  assert.equal content.tax, 20
+
+  callback()
 
 module.exports =
   testCreatingSubDocs : testCreatingSubDocs
@@ -259,3 +310,5 @@ module.exports =
   testNewDocument     : testNewDocument
   testSave            : testSave
   testRemove          : testRemove
+  testToJSON          : testToJSON
+  testValidation      : testValidation
