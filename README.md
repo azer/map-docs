@@ -10,6 +10,10 @@ MapJS is a library for creating data-binding libraries that can interact with ea
 $ npm install map
 ```
 
+# PROJECTS BASED ON MAPJS
+
+* [map-mongo](http://github.com/azer/map-mongo)
+
 # USAGE
 
 ### Creating Drivers
