@@ -24,8 +24,9 @@ generateKey = ->
 get = (collName, key, callback) ->
   callback undefined, coll(collName)[key]
 
-reset = (collName, key, callback) ->
-
+reset = (collName, callback) ->
+  DB[collName] = undefined
+  callback()
 
 remove = (collName, key, callback) ->
   delete coll(collName)[key]
@@ -48,6 +49,7 @@ module.exports = map {
     get: get
     idFieldName: 'key'
     remove: remove
+    reset: reset
     save: save
     toString: toString
   }

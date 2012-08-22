@@ -10,42 +10,10 @@ mapdb       = require './map-db'
 
 throwsError = require './throws-error'
 
-testNewDocument = (callback) ->
+beforeEach = (callback) ->
+  book.reset ->
+    author.reset callback
 
-  driver1 = map {
-    find: ->
-    get: ->
-    save: ->
-    id: 'foo'
-  }
-
-  schema1 = driver1 {
-    foo : String
-    bar : String
-  }
-
-  doc1 = schema1 {
-    foo: 'hello-world',
-    bar: 'corge-quux'
-  }
-
-  doc2 = schema1 {
-    foo: { 'a': 1 },
-    bar: 3.14
-  }
-
-  assert.equal doc1.id(), 'hello-world'
-  assert.equal doc1.foo(), 'hello-world'
-  assert.equal doc1.bar(), 'corge-quux'
-
-  assert.equal doc2.id().a, 1
-  assert.equal doc2.foo().a, 1
-  assert.equal doc2.bar(), 3.14
-
-  assert.equal doc1.id.isDocument, true
-  assert.equal doc1.id.schema, schema1
-
-  callback()
 
 testCreatingSubDocs = (callback) ->
   whitefang = book {
@@ -81,9 +49,21 @@ testCreatingSubDocs = (callback) ->
 
   callback()
 
+testFieldAccessors = (callback) ->
+  whitefang = book {
+    title: 'white fang',
+    price: '$10'
+  }
+
+  assert.equal whitefang.price.raw(), 10
+  assert.equal whitefang.title(), 'White Fang'
+
+  callback()
+
 testFind = (callback) ->
   whitefang = book {
     title: 'white fang'
+    author: 1,
     price: 5
   }
 
@@ -208,6 +188,7 @@ testGet = (callback) ->
 
       callback()
 
+
 testGetSubDocs = (callback) ->
   callback new Error 'No Implemented'
 
@@ -222,6 +203,72 @@ testProperties = (callback) ->
   }
 
   assert.equal document.greeting(), 'Hello jack!'
+  callback()
+
+testLoopSubDocs = (callback) ->
+  ontheroad = book {
+    index: 1
+    title: 'on the road'
+    author: author {
+      key: 'jk'
+      first_name: 'jack'
+      last_name: 'kerouac'
+    }
+  }
+
+  calledEach = no
+
+  each = (name, doc, next) ->
+    assert.equal name, 'author'
+    assert.equal doc.firstName(), 'Jack'
+    assert.equal doc.lastName(), 'Kerouac'
+
+    calledEach = yes
+    next()
+
+  end = (error) ->
+    return callback error if error
+
+    assert.ok calledEach
+    callback()
+
+  map.document.loopSubDocs ontheroad, each, end
+
+testNewDocument = (callback) ->
+
+  driver1 = map {
+    find: ->
+    get: ->
+    save: ->
+    id: 'foo'
+  }
+
+  schema1 = driver1 {
+    foo : String
+    bar : String
+  }
+
+  doc1 = schema1 {
+    foo: 'hello-world',
+    bar: 'corge-quux'
+  }
+
+  doc2 = schema1 {
+    foo: { 'a': 1 },
+    bar: 3.14
+  }
+
+  assert.equal doc1.id(), 'hello-world'
+  assert.equal doc1.foo(), 'hello-world'
+  assert.equal doc1.bar(), 'corge-quux'
+
+  assert.equal doc2.id().a, 1
+  assert.equal doc2.foo().a, 1
+  assert.equal doc2.bar(), 3.14
+
+  assert.equal doc1.id.isDocument, true
+  assert.equal doc1.id.schema, schema1
+
   callback()
 
 testRemove = (callback) ->
@@ -297,6 +344,27 @@ testSave = (callback) ->
 
       callback()
 
+testSaveValidation = (callback) ->
+  valid1 = book {
+    title: 'foo'
+    author: 'bar'
+    price: '$10'
+  }
+
+  invalid1 = book {
+    title: 123,
+    author: 'bar'
+  }
+
+  book.save valid1, (error) ->
+    assert not error
+
+    assert.equal valid1.price.raw(), 10
+
+    book.save invalid1, (error) ->
+      assert.equal error.name, 'ValidationError'
+      callback()
+
 testSaveSubDocs = (callback) ->
   kerouac = author {
     firstName: 'jack'
@@ -313,42 +381,14 @@ testSaveSubDocs = (callback) ->
   book.save road, (error) ->
     return callback error if error
 
-    assert road.id()
-    assert kerouac.id()
+    assert.notEqual road.id(), undefined
+    assert.notEqual kerouac.id(), undefined
 
     assert.equal road.author.id(), kerouac.id()
 
     callback()
 
 
-testValidation = (callback) ->
-
-  driver1 = map {}
-
-  schema1 = driver1 {
-    foo : String,
-    bar : Number,
-    qux : { type: Date, auto: true }
-  }
-
-  doc1 = schema1 {
-    foo: 'hello-world'
-    bar: 123
-  }
-
-  schema1.validate doc1
-
-  assert.ok doc1.qux()
-  assert.ok +(doc1.qux()) > +(new Date)-250
-
-  doc2 = schema1 {
-    foo: 'foo'
-  }
-
-  throwsError ->
-    schema1.validate doc2
-
-  callback()
 
 testToJSON = (callback) ->
 
@@ -388,14 +428,49 @@ testToJSON = (callback) ->
 
   callback()
 
+
+testValidation = (callback) ->
+
+  driver1 = map {}
+
+  schema1 = driver1 {
+    foo : String,
+    bar : Number,
+    qux : { type: Date, auto: true }
+  }
+
+  doc1 = schema1 {
+    foo: 'hello-world'
+    bar: 123
+  }
+
+  schema1.validate doc1
+
+  assert.ok doc1.qux()
+  assert.ok +(doc1.qux()) > +(new Date)-250
+
+  doc2 = schema1 {
+    foo: 'foo'
+  }
+
+  throwsError ->
+    schema1.validate doc2
+
+  callback()
+
 module.exports =
+  beforeEach          : beforeEach
   testCreatingSubDocs : testCreatingSubDocs
-  #testFindSubDocs    : testFindSubDocs
+  testFindSubDocs     : testFindSubDocs
   testFind            : testFind
+  testFieldAccessors  : testFieldAccessors
   testGet             : testGet
+  testLoopSubDocs     : testLoopSubDocs
   testNewDocument     : testNewDocument
   testProperties      : testProperties
   testSave            : testSave
+  testSaveValidation  : testSaveValidation
+  testSaveSubDocs     : testSaveSubDocs
   testRemove          : testRemove
   testToJSON          : testToJSON
   testValidation      : testValidation

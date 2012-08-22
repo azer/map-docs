@@ -24,6 +24,10 @@ find = (query, callback) ->
 get = (index, callback) ->
   callback undefined, clone DB[index]
 
+reset = (callback) ->
+  DB = []
+  callback()
+
 remove = (index, callback) ->
 
   if not index
@@ -49,6 +53,7 @@ module.exports = map {
     get: get
     idFieldName: 'index'
     remove: remove
+    reset: reset
     save: save
     toString: toString
   }
