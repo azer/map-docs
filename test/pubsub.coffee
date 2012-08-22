@@ -1,6 +1,6 @@
 highkick = require 'highkick'
 assert   = require 'assert'
-map      = require '../lib'
+map      = require '../'
 arraydb  = require './array-db'
 
 init = (options, callback) ->

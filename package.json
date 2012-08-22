@@ -1,19 +1,34 @@
 {
-  "name":"map",
-  "version":"0.0.4",
-  "description":"A Library For Creating Data-Binding Libraries",
-  "author":"Azer Koculu <azer@kodfabrik.com>",
-  "keywords":["orm", "functional", "fp", "mongo", "mongodb", "database"],
-  "directories":{ "lib": "./lib" },
-  "main":"./lib",
-  "repository": { "type":"git",  "url" : "http://github.com/azer/map.git" },
-  "devDependencies":{
+  "name": "map",
+  "version": "0.0.4",
+  "description": "A Library For Creating Data-Binding Libraries",
+  "author": "Azer Koculu <azer@kodfabrik.com>",
+  "keywords": [
+    "orm",
+    "functional",
+    "fp",
+    "mongo",
+    "mongodb",
+    "database"
+  ],
+  "directories": {
+    "lib": "./lib"
+  },
+  "main": "./lib",
+  "repository": {
+    "type": "git",
+    "url": "http://github.com/azer/map.git"
+  },
+  "devDependencies": {
     "debug": "git://github.com/azer/debug.git",
     "coffee-script": "x",
     "highkick": "1.x",
     "functools": "1.x"
   },
-  "scripts":{
+  "scripts": {
     "test": "make test"
+  },
+  "dependencies": {
+    "mongodb": "1.0.x"
   }
 }

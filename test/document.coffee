@@ -1,7 +1,7 @@
 assert      = require 'assert'
 functools   = require 'functools'
 
-map         = require '../lib'
+map         = require '../'
 book        = require './content/book'
 arraydb     = require './array-db'
 
@@ -151,7 +151,44 @@ testFind = (callback) ->
                 callback()
 
 testFindSubDocs = (callback) ->
-  callback new Error 'No Implemented'
+  kerouac = author {
+    firstName: 'jack'
+    last_name: 'kerouac'
+  }
+
+  road = book {
+    title: 'on the road'
+    author: kerouac
+    price: 4
+    tax: 50
+  }
+
+  sea = book {
+    title: 'the sea is my brother'
+    author: kerouac
+    price: 3
+    tax: 50
+  }
+
+  functools.map.async book.save, [ road, sea ], (error) ->
+    return callback error if error
+
+    assert kerouac.id()
+    assert road.id()
+    assert sea.id()
+
+    assert.equal road.author.id(), kerouac.id()
+    assert.equal sea.author.id(), kerouac.id()
+
+    book.find { tax: 50 }, (error, results) ->
+      return callback error if error
+
+      assert.equal results.length, 2
+      assert.equal results[0].id(), road.id()
+      assert.equal results[0].author(), kerouac.id()
+      assert.equal results[1].id(), sea.id()
+
+      callbac()
 
 testGet = (callback) ->
   whitefang = book {
@@ -174,6 +211,18 @@ testGet = (callback) ->
 testGetSubDocs = (callback) ->
   callback new Error 'No Implemented'
 
+testProperties = (callback) ->
+  schema1 = arraydb {
+    name: String,
+    greeting: (doc) -> "Hello #{doc.name()}!"
+  }
+
+  document = schema1 {
+    'name': 'jack'
+  }
+
+  assert.equal document.greeting(), 'Hello jack!'
+  callback()
 
 testRemove = (callback) ->
   whitefang = book {
@@ -249,6 +298,28 @@ testSave = (callback) ->
       callback()
 
 testSaveSubDocs = (callback) ->
+  kerouac = author {
+    firstName: 'jack'
+    last_name: 'kerouac'
+  }
+
+  road = book {
+    title: 'on the road'
+    author: kerouac
+    price: 4
+    tax: 50
+  }
+
+  book.save road, (error) ->
+    return callback error if error
+
+    assert road.id()
+    assert kerouac.id()
+
+    assert.equal road.author.id(), kerouac.id()
+
+    callback()
+
 
 testValidation = (callback) ->
 
@@ -281,6 +352,15 @@ testValidation = (callback) ->
 
 testToJSON = (callback) ->
 
+  foo = arraydb {
+    bar: String
+    qux: ->
+  }
+
+  corge = foo {
+    bar: 'BAR'
+  }
+
   ontheroad = book {
     index: 1
     title: 'on the road'
@@ -301,13 +381,20 @@ testToJSON = (callback) ->
   assert.equal content.price, 5
   assert.equal content.tax, 20
 
+  content = foo.toJSON corge
+
+  assert.equal content.bar, 'BAR'
+  assert not content.hasOwnProperty 'qux'
+
   callback()
 
 module.exports =
   testCreatingSubDocs : testCreatingSubDocs
+  #testFindSubDocs    : testFindSubDocs
   testFind            : testFind
   testGet             : testGet
   testNewDocument     : testNewDocument
+  testProperties      : testProperties
   testSave            : testSave
   testRemove          : testRemove
   testToJSON          : testToJSON

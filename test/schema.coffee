@@ -1,11 +1,34 @@
 assert  = require 'assert'
-map     = require '../lib'
+map     = require '../'
 
 book    = require './content/book'
 arraydb = require './array-db'
 
 author  = require './content/author'
 mapdb   = require './map-db'
+
+testCustomMethods = (callback) ->
+  shouldBeIgnored = ->
+
+  foo = (doc, callback) ->
+    assert doc.isDocument
+    callback()
+
+  driver1 = map {
+    find     : -> shouldBeIgnored
+    get      : -> shouldBeIgnored
+    foo      : foo
+    qux      : -> 'corge'
+    toString :  -> 'driver1'
+  }
+
+  schema1 = driver1 {}
+
+  assert.equal schema1.qux(), 'corge'
+  assert.notEqual schema1.find, shouldBeIgnored
+  assert.notEqual schema1.get, shouldBeIgnored
+
+  schema1.foo { isDocument: true }, callback
 
 testDefinition = (callback) ->
   assert.equal book.isSchema, true
@@ -69,12 +92,13 @@ testNewSchema = (callback) ->
 
   callback()
 
-
 testRewriteFieldOptions = (callback) ->
   subschema = { 'isSchema': true }
+  greeting  = -> "hello!"
 
   options1 =
     title: { type: String, min: 2, max: 255 }
+    greeting: greeting
     content: String
     lastModifiedTS: Date
 
@@ -88,6 +112,7 @@ testRewriteFieldOptions = (callback) ->
   assert.equal rewritten1.title.type, map.types.string
   assert.equal rewritten1.title.min, 2
   assert.equal rewritten1.title.max, 255
+  assert.equal rewritten1.greeting, greeting
 
   assert.equal rewritten1.content.type, map.types.string
 
@@ -100,8 +125,9 @@ testRewriteFieldOptions = (callback) ->
   callback()
 
 module.exports =
-  testDefinition: testDefinition
-  testIsSchema: testIsSchema
-  testLoopSubSchemas: testLoopSubSchemas
-  testNewSchema: testNewSchema
-  testRewriteFieldOptions: testRewriteFieldOptions
+  testCustomMethods       : testCustomMethods
+  testDefinition          : testDefinition
+  testIsSchema            : testIsSchema
+  testLoopSubSchemas      : testLoopSubSchemas
+  testNewSchema           : testNewSchema
+  testRewriteFieldOptions : testRewriteFieldOptions

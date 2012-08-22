@@ -1,4 +1,4 @@
-map = require '../../lib'
+map = require '../../'
 
 DB = {}
 

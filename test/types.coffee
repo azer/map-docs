@@ -1,6 +1,6 @@
 highkick    = require 'highkick'
 assert      = require 'assert'
-map         = require '../lib'
+map         = require '../'
 throwsError = require './throws-error'
 
 init = (options, callback) ->
