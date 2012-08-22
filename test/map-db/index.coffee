@@ -24,6 +24,9 @@ generateKey = ->
 get = (collName, key, callback) ->
   callback undefined, coll(collName)[key]
 
+reset = (collName, key, callback) ->
+
+
 remove = (collName, key, callback) ->
   delete coll(collName)[key]
   callback()

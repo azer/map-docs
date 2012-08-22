@@ -10,7 +10,9 @@ mapdb   = require './map-db'
 testCustomMethods = (callback) ->
   shouldBeIgnored = ->
 
-  foo = (doc, callback) ->
+  foo = (option1, option2, doc, callback) ->
+    assert.equal option1, 'span'
+    assert.equal option2, 'eggs'
     assert doc.isDocument
     callback()
 
@@ -22,7 +24,7 @@ testCustomMethods = (callback) ->
     toString :  -> 'driver1'
   }
 
-  schema1 = driver1 {}
+  schema1 = driver1 'span', 'eggs', {}
 
   assert.equal schema1.qux(), 'corge'
   assert.notEqual schema1.find, shouldBeIgnored
