@@ -47,6 +47,22 @@ testCreatingSubDocs = (callback) ->
   assert.equal ontheroad.author.firstName(), 'Jack'
   assert.equal ontheroad.author.lastName(), 'Kerouac'
 
+  ontheroad = book {
+    index: 1
+    title: 'on the road'
+    author: {
+      key: 'jk'
+      first_name: 'Jack'
+      last_name: 'Kerouac'
+    }
+  }
+
+  assert.equal ontheroad.id(), 1
+  assert.equal ontheroad.title(), 'On The Road'
+  assert.equal ontheroad.author.id(), 'jk'
+  assert.equal ontheroad.author.firstName(), 'Jack'
+  assert.equal ontheroad.author.lastName(), 'Kerouac'
+
   callback()
 
 testFieldAccessors = (callback) ->
@@ -150,25 +166,30 @@ testFindSubDocs = (callback) ->
     tax: 50
   }
 
-  functools.map.async book.save, [ road, sea ], (error) ->
+  author.save kerouac, (error) ->
     return callback error if error
 
     assert kerouac.id()
-    assert road.id()
-    assert sea.id()
 
-    assert.equal road.author.id(), kerouac.id()
-    assert.equal sea.author.id(), kerouac.id()
-
-    book.find { tax: 50 }, (error, results) ->
+    functools.map.async book.save, [ road, sea ], (error) ->
       return callback error if error
 
-      assert.equal results.length, 2
-      assert.equal results[0].id(), road.id()
-      assert.equal results[0].author(), kerouac.id()
-      assert.equal results[1].id(), sea.id()
+      assert kerouac.id()
+      assert road.id() > -1
+      assert sea.id() > -1
 
-      callbac()
+      assert.equal road.author.id(), kerouac.id()
+      assert.equal sea.author.id(), kerouac.id()
+
+      book.find { tax: 50 }, (error, results) ->
+        return callback error if error
+
+        assert.equal results.length, 2
+        assert.equal results[0].id(), road.id()
+        assert.equal results[0].author(), kerouac.id()
+        assert.equal results[1].id(), sea.id()
+
+        callback()
 
 testGet = (callback) ->
   whitefang = book {
@@ -184,26 +205,51 @@ testGet = (callback) ->
 
       assert.equal copy.id(), id
       assert.equal copy.title(), 'White Fang'
-      assert.equal copy.author(), 'jl'
+      assert.equal copy.author(), undefined
 
       callback()
 
 
 testGetSubDocs = (callback) ->
-  callback new Error 'No Implemented'
-
-testProperties = (callback) ->
   schema1 = arraydb {
-    name: String,
-    greeting: (doc) -> "Hello #{doc.name()}!"
+    foo: Number
   }
 
-  document = schema1 {
-    'name': 'jack'
+  schema2 = mapdb 'schema2', {
+    bar: Number
+    qux: schema1
   }
 
-  assert.equal document.greeting(), 'Hello jack!'
-  callback()
+  schema3 = arraydb {
+    corge: Number
+    span: schema2
+  }
+
+  doc1 = schema3 {
+    corge: 3.14
+    span: schema2 {
+      bar: 159
+      qux: schema1 {
+        foo: 265
+      }
+    }
+  }
+
+  schema3.save doc1, (error) ->
+    return callback error if error
+
+    assert doc1.id() > -1
+    assert doc1.span.id()
+    assert doc1.span.qux.id() > -1
+
+    schema3.get doc1.id(), (error, copy) ->
+      return callback error if error
+
+      assert copy.id() > -1
+      assert copy.span.id()
+      assert copy.span.qux.id() > -1
+
+      callback()
 
 testLoopSubDocs = (callback) ->
   ontheroad = book {
@@ -271,6 +317,20 @@ testNewDocument = (callback) ->
 
   callback()
 
+
+testProperties = (callback) ->
+  schema1 = arraydb {
+    name: String,
+    greeting: (doc) -> "Hello #{doc.name()}!"
+  }
+
+  document = schema1 {
+    'name': 'jack'
+  }
+
+  assert.equal document.greeting(), 'Hello jack!'
+  callback()
+
 testRemove = (callback) ->
   whitefang = book {
     title: 'white fang',
@@ -315,10 +375,67 @@ testRemove = (callback) ->
               callback()
 
 testRemoveByQueries = (callback) ->
-  callback new Error 'Not Implemented'
+  whitefang = book {
+    title: 'white fang'
+    author: 1,
+    price: 5
+  }
+
+  ontheroad = book {
+    title: 'on the road'
+    author: 1
+    price: 4
+  }
+
+  howl = book {
+    title: 'howl'
+    author: 2
+    price: 4
+    tax: 50
+  }
+
+  functools.map.async book.save, [ whitefang, ontheroad, howl ], (error) ->
+    return callback error if error
+
+    book.remove { price: 4 }, (error, results) ->
+      return callback error if error
+
+      book.find { price: 4 }, (error, results) ->
+        return callback error if error
+
+        assert.equal results.length, 0
+
+        callback()
 
 testRemoveSubDocs = (callback) ->
-  callback new Error 'No Implemented'
+  whitefang = book {
+    title: 'white fang',
+    author: author {
+      firstName: 'jack',
+      lastName: 'london'
+    }
+  }
+
+  book.save whitefang, (error) ->
+    return callback error if error
+
+    assert whitefang.id() > -1
+    assert whitefang.author.id()
+
+    book.remove whitefang, (error) ->
+      return callback error if error
+
+      book.get whitefang.id(), (error, wfcopy) ->
+        return callback error if error
+
+        assert.equal wfcopy, undefined
+
+        author.get whitefang.author.id(), (error, jlcopy) ->
+          return callback error if error
+
+          assert.equal jlcopy, undefined
+
+          callback()
 
 testSave = (callback) ->
   whitefang = book {
@@ -386,9 +503,12 @@ testSaveSubDocs = (callback) ->
 
     assert.equal road.author.id(), kerouac.id()
 
-    callback()
+    author.get kerouac.id(), (error, kerouacCopy) ->
+      return callback error if error
 
+      assert.equal kerouacCopy.id(), kerouac.id()
 
+      callback()
 
 testToJSON = (callback) ->
 
@@ -461,16 +581,19 @@ testValidation = (callback) ->
 module.exports =
   beforeEach          : beforeEach
   testCreatingSubDocs : testCreatingSubDocs
-  testFindSubDocs     : testFindSubDocs
   testFind            : testFind
+  testFindSubDocs     : testFindSubDocs
   testFieldAccessors  : testFieldAccessors
   testGet             : testGet
+  testGetSubDocs      : testGetSubDocs
   testLoopSubDocs     : testLoopSubDocs
   testNewDocument     : testNewDocument
   testProperties      : testProperties
+  testRemove          : testRemove
+  testRemoveSubDocs   : testRemoveSubDocs
+  testRemoveByQueries : testRemoveByQueries
   testSave            : testSave
   testSaveValidation  : testSaveValidation
   testSaveSubDocs     : testSaveSubDocs
-  testRemove          : testRemove
   testToJSON          : testToJSON
   testValidation      : testValidation

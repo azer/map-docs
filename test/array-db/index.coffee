@@ -1,5 +1,4 @@
 map = require '../../'
-
 DB = []
 
 clone = (obj) ->
