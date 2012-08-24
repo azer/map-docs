@@ -9,7 +9,7 @@ MapJS is a library for creating data-binding libraries that can interact with ea
 # SYNOPSIS
 
 ```js
-var tweets = mapTweets({
+var tweet = mapTweets({
   author: String,
   text: String
 });
@@ -18,7 +18,8 @@ var user = mapMongoDB('users', {
   name: { type: String, required: true, min: 3, max: 18 },
   email: mapMongo.types.email,
   age: Number,
-  docs: [doc],
+  tweets: [tweet],
+  lastModified: { type: Date, auto: true },
   greeting: function(doc){
     return 'Hello ' + doc.name() + '!';
   }
