@@ -10,7 +10,7 @@ clone = (obj) ->
 find = (query, callback) ->
   results = []
 
-  return callback undefined, DB if not query
+  return callback undefined, DB if query == undefined
 
   for el in DB
     matches = Object.keys(query).every (key) ->
@@ -27,13 +27,19 @@ reset = (callback) ->
   DB = []
   callback()
 
-remove = (index, callback) ->
-
-  if not index
+remove = (query, callback) ->
+  if query == undefined
     DB = []
     return callback()
 
-  DB[index] = undefined
+  if typeof query != 'object'
+    DB[query] = undefined
+    return callback()
+
+  DB = DB.filter (el) ->
+    return Object.keys(query).every (key) ->
+      return el[key] != query[key]
+
   callback()
 
 save = (obj, callback) ->

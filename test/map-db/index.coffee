@@ -10,7 +10,9 @@ coll = (name) ->
 find = (collName, query, callback) ->
   results = []
 
-  for key, record of DB[collName]
+  return callback undefined, coll(collName) if query == undefined
+
+  for key, record of coll(collName)
     matches = Object.keys(query).every (key) ->
       return record[key] == query[key]
 
@@ -28,8 +30,21 @@ reset = (collName, callback) ->
   DB[collName] = undefined
   callback()
 
-remove = (collName, key, callback) ->
-  delete coll(collName)[key]
+remove = (collName, query, callback) ->
+  if query == undefined
+    return callback()
+
+  if typeof query != 'object'
+    delete coll(collName)[query]
+    return callback()
+
+  for key, value in coll(collName)
+    matches = Object.keys(query).every (key) ->
+      return el[key] != query[key]
+
+    if matches
+      delete DB[collName]
+
   callback()
 
 save = (collName, doc, callback) ->

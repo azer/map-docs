@@ -146,6 +146,32 @@ testFind = (callback) ->
 
                 callback()
 
+testFindById = (callback) ->
+  whitefang = book {
+    title: 'white fang'
+    author: 1,
+    price: 5
+  }
+
+  book.save whitefang, (error) ->
+    return callback error if error
+
+    book.find { 'id': whitefang.id() }, (error, result) ->
+
+      assert not error
+      assert.equal result.length, 1
+      assert.equal whitefang.id(), result[0].id()
+      assert.equal result[0].title(), 'White Fang'
+
+      book.find whitefang.id(), (error, result) ->
+
+        assert not error
+        assert.equal result.length, 1
+        assert.equal whitefang.id(), result[0].id()
+        assert.equal result[0].title(), 'White Fang'
+
+        callback()
+
 testFindSubDocs = (callback) ->
   kerouac = author {
     firstName: 'jack'
@@ -332,6 +358,11 @@ testProperties = (callback) ->
   callback()
 
 testRemove = (callback) ->
+  ontheroad = book {
+    title: 'on the road'
+    author: 'jk'
+  }
+
   whitefang = book {
     title: 'white fang',
     author: 'jl'
@@ -342,7 +373,7 @@ testRemove = (callback) ->
     last_name: 'asimov'
   }
 
-  book.save whitefang, (error) ->
+  functools.map.async book.save, [ whitefang, ontheroad ], (error) ->
     return callback error if error
 
     wfid = whitefang.id()
@@ -352,29 +383,32 @@ testRemove = (callback) ->
 
       iaid = asimov.id()
 
-      book.remove whitefang, (error) ->
+      book.remove whitefang.id(), (error) ->
         return callback error if error
-
-        assert.equal whitefang.id(), undefined
 
         book.get wfid, (error, nonexisting) ->
           return callback error if error
 
           assert.equal nonexisting, undefined
 
-          author.remove asimov, (error) ->
-            return callback error if error
+          book.get ontheroad.id(), (error, otr) ->
 
-            assert.equal asimov.id(), undefined
+            assert not error
+            assert otr
 
-            book.get iaid, (error, nonexisting) ->
+            author.remove asimov, (error) ->
               return callback error if error
 
-              assert.equal nonexisting, undefined
+              assert.equal asimov.id(), undefined
 
-              callback()
+              author.get iaid, (error, nonexisting) ->
+                return callback error if error
 
-testRemoveByQueries = (callback) ->
+                assert.equal nonexisting, undefined
+
+                callback()
+
+testRemoveByQuery = (callback) ->
   whitefang = book {
     title: 'white fang'
     author: 1,
@@ -400,18 +434,23 @@ testRemoveByQueries = (callback) ->
     book.remove { price: 4 }, (error, results) ->
       return callback error if error
 
-      book.find { price: 4 }, (error, results) ->
-        return callback error if error
+      book.get whitefang.id(), (error, wf) ->
 
-        assert.equal results.length, 0
+        assert not error
+        assert wf
 
-        callback()
+        book.find { price: 4 }, (error, results) ->
+          return callback error if error
+
+          assert.equal results.length, 0
+
+          callback()
 
 testRemoveSubDocs = (callback) ->
   whitefang = book {
-    title: 'white fang',
+    title: 'white fang'
     author: author {
-      firstName: 'jack',
+      firstName: 'jack'
       lastName: 'london'
     }
   }
@@ -582,6 +621,7 @@ module.exports =
   beforeEach          : beforeEach
   testCreatingSubDocs : testCreatingSubDocs
   testFind            : testFind
+  testFindById        : testFindById
   testFindSubDocs     : testFindSubDocs
   testFieldAccessors  : testFieldAccessors
   testGet             : testGet
@@ -591,7 +631,7 @@ module.exports =
   testProperties      : testProperties
   testRemove          : testRemove
   testRemoveSubDocs   : testRemoveSubDocs
-  testRemoveByQueries : testRemoveByQueries
+  testRemoveByQuery   : testRemoveByQuery
   testSave            : testSave
   testSaveValidation  : testSaveValidation
   testSaveSubDocs     : testSaveSubDocs
