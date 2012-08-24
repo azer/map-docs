@@ -2,8 +2,6 @@ MapJS is a library for creating data-binding libraries that can interact with ea
 
 **Target Platforms:** NodeJS, B2G and Web Browsers
 
-**Status:** In Development
-
 # MOTIVATION
 
 ![](https://dl.dropbox.com/s/62jdjz3vtlooov2/--560240.jpeg)
@@ -11,17 +9,44 @@ MapJS is a library for creating data-binding libraries that can interact with ea
 # SYNOPSIS
 
 ```js
+var doc = mapFS('./docs', {
+  path: String,
+  content: String
+});
+
+var user = mapMongo({
+  name: { type: String, required: true, min: 3, max: 18 },
+  email: mapMongo.types.email,
+  docs: [doc],
+  greeting: function(doc){
+    return 'Hello ' + doc.name() + '!';
+  }
+});
+
+var joe = user({
+  name: 'Fast Joe',
+  email: 'fastjoe@oakland.com',
+  docs: [{ path: 'joe.txt' }]
+});
+
+user.save(joe, function(error){
+  
+  assert( !error );
+  assert( joe.id() ); // should be set after saving
+  assert(  );
+  
+});
 ```
+
+# LIBRARIES BASED ON MAPJS
+
+* [map-mongo](http://github.com/azer/map-mongo)
 
 # INSTALL
 
 ```bash
 $ npm install map
 ```
-
-# PROJECTS BASED ON MAPJS
-
-* [map-mongo](http://github.com/azer/map-mongo)
 
 # USAGE
 
