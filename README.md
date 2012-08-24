@@ -4,6 +4,8 @@ MapJS is a library for creating data-binding libraries that can interact with ea
 
 # MOTIVATION
 
+d
+
 ![](https://dl.dropbox.com/s/62jdjz3vtlooov2/--560240.jpeg)
 
 # SYNOPSIS
