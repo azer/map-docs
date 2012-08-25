@@ -1,18 +1,14 @@
-MapJS is a library for creating data-binding libraries that can interact with eachother.
-
-**Target Platforms:** NodeJS, B2G and Web Browsers
+MapJS is a library for creating data-binding libraries that can interact with eachother. It's written in JavaScript and targets both 
+NodeJS and web browsers.
 
 # MOTIVATION
-
-d
 
 ![](https://dl.dropbox.com/s/62jdjz3vtlooov2/--560240.jpeg)
 
 # SYNOPSIS
 
 ```js
-var tweet = mapTweets({
-  author: String,
+var tweet = mapRSS('https://api.twitter.com/1/statuses/user_timeline.rss?screen_name={{ user.name }}', {
   text: String
 });
 
@@ -20,13 +16,14 @@ var user = mapMongoDB('users', {
   name: { type: String, required: true, min: 3, max: 18 },
   email: mapMongo.types.email,
   age: Number,
-  tweets: [tweet],
+  tweets: [tweet('user')],
   lastModified: { type: Date, auto: true }
+  greeting: function(doc){
+    return 'Hello ' + doc.name() + '!';
+  }
 });
 
-user.greeting = function(doc){
-  return 'Hello ' + doc.name() + '!';
-}
+user.greeting = 
 
 user.find({ age: { '$gte': 18 } }, function(error, result){
   
