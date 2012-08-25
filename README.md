@@ -21,11 +21,12 @@ var user = mapMongoDB('users', {
   email: mapMongo.types.email,
   age: Number,
   tweets: [tweet],
-  lastModified: { type: Date, auto: true },
-  greeting: function(doc){
-    return 'Hello ' + doc.name() + '!';
-  }
+  lastModified: { type: Date, auto: true }
 });
+
+user.greeting = function(doc){
+  return 'Hello ' + doc.name() + '!';
+}
 
 user.find({ age: { '$gte': 18 } }, function(error, result){
   
