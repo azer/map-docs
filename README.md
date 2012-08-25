@@ -18,28 +18,52 @@ var tweet = mapRSS('https://api.twitter.com/1/statuses/user_timeline.rss?screen_
   text: String
 });
 
-var user = mapMongoDB('users', {
-  name: { type: String, required: true, min: 3, max: 18 },
-  email: mapMongo.types.email,
-  age: Number,
-  tweets: [tweet('user')],
-  lastModified: { type: Date, auto: true }
-  greeting: function(doc){
+var profile = mapMongoDB('profiles', {
+  name: String, // or: { type: mapMongo.types.string, required: Boolean, min: Number, max: Number },
+  birthdate: Date, // or: { type: mapMongo.types.date, auto: false }
+  twitter: String, 
+  tweets: [tweet('user')], // or: { type: mapMongo.types.subschema, schema: tweet('user'), method: find }
+  
+  greeting: function(doc){ // or { property: function(){..} }
     return 'Hello ' + doc.name() + '!';
   }
 });
 
-user.greeting = 
+var user = mapMongoDB('users', {
+  email: mapMongo.types.email, // or: { type: mapMongo.types.email }
+  password: String,
+  profile: profile // or { type: mapMongo.types.subschema, schema: profile, method: get }
+});
 
-user.find({ age: { '$gte': 18 } }, function(error, result){
+/**
+ * Creating, saving and finding documents
+ */
+var joe = user({
+  email: 'joe@mail.com',
+  password: 'j03',
+  profile: {
+    name: 'Joe',
+    birthdate: new Date('01.01.1987'),
+    twitter: 'joe'
+  }
+});
+
+user.save(joe, function(error){
+ 
+  if(error) throw error;
   
-  assert( !error );
+  assert(joe.id());
+  assert(joe.profile.id());
   
-  var joe = results[0]
+  user.find(function(error, results){ // a query can be passed here:  user.find(1 .. or user.find({ 'key': value }
+    
+    if(error) throw error;
+    
+    assert(results.length == 1);
+    assert(results[0].profile() == joe.profile.id()); // find methods don't retrieve subdocs.
   
-  assert( joe.id() ); // returns the value of _id field from mongodb
-  assert( joe.tweets() ); // should be an empty array. "find" doesn't load subdocs.
-  
+  });
+
 });
 ```
 
