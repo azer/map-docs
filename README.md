@@ -3,7 +3,13 @@ NodeJS and web browsers.
 
 # MOTIVATION
 
-![](https://dl.dropbox.com/s/62jdjz3vtlooov2/--560240.jpeg)
+  * **Functional:**
+  * **Flexibility:**
+  * **Simplicity:**
+  * **Cross-platform:**
+
+
+![](https://dl.dropbox.com/s/ja4busjvo3kvwhr/53339576807016984_goM4BxQr_f.jpg)
 
 # SYNOPSIS
 
