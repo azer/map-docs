@@ -6,7 +6,8 @@ NodeJS and web browsers.
   * **Functional:**
   * **Flexibility:**
   * **Simplicity:**
-  * **Cross-platform:**
+  * **Compatibility:**
+  * **Multi-platform:**
 
 
 ![](https://dl.dropbox.com/s/ja4busjvo3kvwhr/53339576807016984_goM4BxQr_f.jpg)
