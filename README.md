@@ -16,6 +16,7 @@ NodeJS and web browsers.
 ```js
 var tweet = mapRSS('https://api.twitter.com/1/statuses/user_timeline.rss?screen_name={{ user.name }}', {
   text: String
+  date: Date
 });
 
 var profile = mapMongoDB('profiles', {
@@ -54,6 +55,8 @@ user.save(joe, function(error){
   
   assert(joe.id());
   assert(joe.profile.id());
+  assert(joe.profile.tweets.length, 20);
+  assert(joe.profile.tweets[0].text(), 'RT @foo bar');
   
   user.find(function(error, results){ // a query can be passed here:  user.find(1 .. or user.find({ 'key': value }
     
