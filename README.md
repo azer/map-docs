@@ -15,8 +15,9 @@ NodeJS and web browsers.
 # SYNOPSIS
 
 ```js
-var tweet = mapRSS('https://api.twitter.com/1/statuses/user_timeline.rss?screen_name={{ user.name }}', {
-  text: String
+var tweet = mapRSS('https://api.twitter.com/1/statuses/user_timeline.rss?screen_name={{ user }}', {
+  user: String,
+  text: String,
   date: Date
 });
 
