@@ -16,7 +16,7 @@ NodeJS and web browsers.
 
 ```js
 var tweet = mapRSS('https://api.twitter.com/1/statuses/user_timeline.rss?screen_name={{ user }}', {
-  user: String,
+  user: mapRSS.types.document,
   text: String,
   date: Date
 });
@@ -25,7 +25,7 @@ var profile = mapMongoDB('profiles', {
   name: String, // or: { type: mapMongo.types.string, required: Boolean, min: Number, max: Number },
   birthdate: Date, // or: { type: mapMongo.types.date, auto: false }
   twitter: String, 
-  tweets: [tweet('user')], // or: { type: mapMongo.types.subschema, schema: tweet, method: 'find', targetField: 'user' }
+  tweets: [tweet('user')], // or: { type: mapMongo.types.document, schema: tweet, method: 'find', targetField: 'user' }
   
   greeting: function(doc){ // or { property: function(){..} }
     return 'Hello ' + doc.name() + '!';
@@ -35,7 +35,7 @@ var profile = mapMongoDB('profiles', {
 var user = mapMongoDB('users', {
   email: mapMongo.types.email, // or: { type: mapMongo.types.email }
   password: String,
-  profile: profile // or { type: mapMongo.types.subschema, schema: profile, method: get }
+  profile: profile // or { type: mapMongo.types.document, schema: profile, method: get }
 });
 
 /**
