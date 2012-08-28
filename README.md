@@ -25,7 +25,7 @@ var profile = mapMongoDB('profiles', {
   name: String, // or: { type: mapMongo.types.string, required: Boolean, min: Number, max: Number },
   birthdate: Date, // or: { type: mapMongo.types.date, auto: false }
   twitter: String, 
-  tweets: [tweet('user')], // or: { type: mapMongo.types.subschema, schema: tweet('user'), method: find }
+  tweets: [tweet('user')], // or: { type: mapMongo.types.subschema, schema: tweet, method: 'find', targetField: 'user' }
   
   greeting: function(doc){ // or { property: function(){..} }
     return 'Hello ' + doc.name() + '!';
