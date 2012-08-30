@@ -7,9 +7,7 @@
     "orm",
     "functional",
     "fp",
-    "mongo",
-    "mongodb",
-    "database"
+    "data-binding"
   ],
   "directories": {
     "lib": "./lib"
@@ -27,8 +25,5 @@
   },
   "scripts": {
     "test": "make test"
-  },
-  "dependencies": {
-    "mongodb": "1.0.x"
   }
 }
