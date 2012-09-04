@@ -38,6 +38,13 @@ var user = mapMongoDB('users', {
   profile: profile // or { type: mapMongo.types.document, schema: profile, method: get }
 });
 
+var userView = mapMustache('<h1>{{ profile.greeting }}</h1> Tweets: {{# profile.tweets }} {{> .}} {{/profile.tweets}}');
+
+var userController = mapModelView({
+  model: user,
+  view: userView
+});
+
 /**
  * Creating, saving and finding documents
  */
