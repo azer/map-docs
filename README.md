@@ -38,11 +38,23 @@ var user = mapMongoDB('users', {
   profile: profile // or { type: mapMongo.types.document, schema: profile, method: get }
 });
 
-var userView = mapMustache('<h1>{{ profile.greeting }}</h1> Tweets: {{# profile.tweets }} {{> .}} {{/profile.tweets}}');
+var userView = mapMustache('Tweets: {{#profile.tweets }} {{> .}} {{/profile.tweets}}');
 
-var userController = mapModelView({
+var userWidget = mapWidget({
   model: user,
   view: userView
+});
+
+var titleWidget = mapWidget('<h1>{{ profile.greeting }}</h1>', {
+  model: user
+});
+
+var container = mapWidget({
+  view: mapMustache('<html><body>{{title}} {{user}}</body>')
+  children: {
+    title: titleWidget
+    user: userWidget
+  }
 });
 
 /**
